@@ -24,6 +24,10 @@ public class MemoryJuggle {
         myCards.add(new CardPair("Dog", "Aso"));
         myCards.add(new CardPair("Cat", "Pusa"));
         myCards.add(new CardPair("Cat", "Pusa"));
+        myCards.add(new CardPair("Apple", "Mansanas"));
+        myCards.add(new CardPair("Dog", "Aso"));
+        myCards.add(new CardPair("Cat", "Pusa"));
+        myCards.add(new CardPair("Cat", "Pusa"));
         
         
         
