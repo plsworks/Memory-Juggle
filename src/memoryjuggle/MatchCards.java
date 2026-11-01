@@ -109,6 +109,7 @@ public class MatchCards {
         frame.setLocationRelativeTo(null);
         frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().setBackground(Color.decode("#605063"));
 
         // Error counter display
         textLabel.setFont(new Font("Arial", Font.PLAIN, 20));
@@ -245,10 +246,10 @@ public class MatchCards {
         cardSet = new ArrayList<Card>();
 
         java.net.URL imageURL1 =
-            getClass().getResource("Back_Card.png");
+            getClass().getResource("Clover_Card_Back.png");
 
         java.net.URL imageURL2 =
-            getClass().getResource("Front_Card.png");
+            getClass().getResource("Clover_Card_Front.png");
 
         if (imageURL1 == null || imageURL2 == null) {
             throw new IllegalStateException("Card image not found!");
