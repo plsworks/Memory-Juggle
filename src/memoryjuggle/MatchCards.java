@@ -9,6 +9,27 @@ import javax.swing.*;
 import javax.swing.border.Border;
 
 public class MatchCards {
+    
+    public static void main(String[] args) {
+
+    ArrayList<CardPair> cards = new ArrayList<>();
+
+    cards.add(new CardPair("Apple", "Mansanas"));
+    cards.add(new CardPair("Dog", "Aso"));
+    cards.add(new CardPair("Cat", "Pusa"));
+    cards.add(new CardPair("Book", "Libro"));
+    cards.add(new CardPair("Water", "Tubig"));
+    cards.add(new CardPair("House", "Bahay"));
+    cards.add(new CardPair("Sun", "Araw"));
+    cards.add(new CardPair("Moon", "Buwan"));
+
+    Difficulty diff = new Difficulty();
+    diff.easy();
+
+    javax.swing.SwingUtilities.invokeLater(() -> {
+        new MatchCards(cards, diff);
+    });
+}
 
     class Card {
         private String cardText;
