@@ -48,12 +48,13 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
                           <Component id="txtTitle" min="-2" pref="186" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" attributes="0">
                           <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
                               <Component id="jScrollPane1" alignment="0" pref="0" max="32767" attributes="0"/>
+                              <Component id="backBtn" alignment="0" max="32767" attributes="0"/>
                               <Group type="102" attributes="0">
                                   <EmptySpace min="0" pref="6" max="32767" attributes="0"/>
                                   <Component id="createBtn" min="-2" pref="59" max="-2" attributes="0"/>
@@ -66,14 +67,16 @@
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="renameBtn" min="-2" pref="66" max="-2" attributes="0"/>
                               </Group>
-                              <Component id="backBtn" alignment="0" max="32767" attributes="0"/>
-                              <Component id="txtSearch" alignment="0" max="32767" attributes="0"/>
+                              <Group type="102" alignment="1" attributes="0">
+                                  <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
+                                  <Component id="searchBtn" min="-2" pref="45" max="-2" attributes="0"/>
+                                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                                  <Component id="txtSearch" max="32767" attributes="0"/>
+                              </Group>
                           </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="searchBtn" min="-2" pref="45" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="57" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>

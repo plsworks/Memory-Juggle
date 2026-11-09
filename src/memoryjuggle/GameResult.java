@@ -53,7 +53,7 @@ public class GameResult extends javax.swing.JFrame {
         JButton playAgainBtn = new JButton("Play Again");
         playAgainBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         playAgainBtn.addActionListener(e -> {
-            new MatchCards(cards, diff);
+            new Game(cards, diff).setVisible(true);
             dispose();
         });
         panel.add(playAgainBtn);

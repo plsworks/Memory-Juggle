@@ -117,7 +117,7 @@ public class Game extends javax.swing.JFrame {
 
             gbc.gridx = i % columns;
             gbc.gridy = i / columns;
-            gbc.insets = new Insets(5, 5, 5, 5);
+            gbc.insets = new Insets(10, 10, 10, 10);
 
             boardPanel.add(button, gbc);
         }
@@ -134,6 +134,8 @@ public class Game extends javax.swing.JFrame {
 
         this.cards = cards;
         this.diff = diff;
+        
+        displayCardPairs();
 
         rows = diff.getRows();
         columns = diff.getColumns();
@@ -155,8 +157,8 @@ public class Game extends javax.swing.JFrame {
         scorePanel.setOpaque(false);
 
         errorLabel = new JLabel("Errors: 0", SwingConstants.CENTER);
-        errorLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        errorLabel.setForeground(Color.WHITE);
+        errorLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
+        errorLabel.setForeground(Color.BLACK);
 
         scorePanel.add(errorLabel, BorderLayout.CENTER);
 
@@ -171,7 +173,7 @@ public class Game extends javax.swing.JFrame {
 board = new ArrayList<>();
 
 boardPanel = new RoundedPanel(new GridBagLayout());
-boardPanel.setBackground(Color.decode("#605063"));
+boardPanel.setBackground(Color.decode("#FFFFFF"));
 
 JPanel centerPanel = new JPanel(new GridBagLayout());
 centerPanel.setOpaque(false);
@@ -285,9 +287,17 @@ populateBoard();
                 card2Selected = null;
 
                 // CHECK IF GAME IS COMPLETED
+                // CHECK IF GAME IS COMPLETED
                 if (allCardsMatched()) {
                     gameReady = false;
-                    errorLabel.setText("Completed! Errors: " + errorCount);
+
+                    Timer resultTimer = new Timer(300, e -> {
+                        new GameResult(cards, diff, errorCount).setVisible(true);
+                        dispose();
+                    });
+
+                    resultTimer.setRepeats(false);
+                    resultTimer.start();
                 }
 
             } else {
@@ -498,6 +508,9 @@ populateBoard();
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         hideCardTimer.stop();
+
+        new Mainmenu(new SetManager()).setVisible(true);
+
         dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
