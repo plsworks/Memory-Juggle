@@ -199,7 +199,12 @@ public class MatchCards {
 
                                 card1Selected = null;
                                 card2Selected = null;
-                                afterAttempt();
+
+                                if (isGameOver()) {
+                                    showResult();
+                                } else {
+                                    afterAttempt();
+                                }
 
                             } else {
 
@@ -487,5 +492,34 @@ public class MatchCards {
         rebuildBoard();
 
         previewTimer.restart();
+    }
+
+    // True when every card has been matched (matched buttons are disabled)
+    boolean isGameOver() {
+        for (Card c : cardSet) {
+            if (c.getButton().isEnabled()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Close the game window and open the result screen
+    void showResult() {
+        gameReady = false;
+
+        previewTimer.stop();
+        hideCardTimer.stop();
+        if (swapTimer != null) {
+            swapTimer.stop();
+        }
+
+        // Short pause so the player can see the last matched pair
+        Timer resultTimer = new Timer(800, e -> {
+            frame.dispose();
+            new GameResult(cards, diff, errorCount).setVisible(true);
+        });
+        resultTimer.setRepeats(false);
+        resultTimer.start();
     }
 }
