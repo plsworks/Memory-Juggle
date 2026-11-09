@@ -51,7 +51,6 @@ private void refreshList(ArrayList<CardSet> sets) {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButton3 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         txtTitle = new javax.swing.JLabel();
         searchBtn = new javax.swing.JButton();
@@ -63,11 +62,9 @@ private void refreshList(ArrayList<CardSet> sets) {
         editBtn = new javax.swing.JButton();
         deleteBtn = new javax.swing.JButton();
         backBtn = new javax.swing.JButton();
+        renameBtn = new javax.swing.JButton();
 
-        jButton3.setText("Search");
-        jButton3.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Saved Sets");
         setFocusable(false);
 
@@ -104,6 +101,10 @@ private void refreshList(ArrayList<CardSet> sets) {
         backBtn.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         backBtn.addActionListener(this::backBtnActionPerformed);
 
+        renameBtn.setText("Rename");
+        renameBtn.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        renameBtn.addActionListener(this::renameBtnActionPerformed);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -126,7 +127,9 @@ private void refreshList(ArrayList<CardSet> sets) {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(deleteBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(deleteBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(renameBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(backBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(txtSearch, javax.swing.GroupLayout.Alignment.LEADING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -145,11 +148,13 @@ private void refreshList(ArrayList<CardSet> sets) {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(15, 15, 15)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(createBtn)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(deleteBtn)
-                    .addComponent(viewBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(createBtn)
+                        .addComponent(deleteBtn)
+                        .addComponent(renameBtn)
+                        .addComponent(viewBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(backBtn)
                 .addGap(215, 215, 215))
@@ -170,6 +175,18 @@ private void refreshList(ArrayList<CardSet> sets) {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void renameBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_renameBtnActionPerformed
+        CardSet s = getSelectedSet(); if (s == null) return;
+        String name = JOptionPane.showInputDialog(this, "New name:", s.getName());
+        if (name == null) return;
+        try {
+            manager.renameSet(s, name);
+            refreshList(manager.getSets());
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+    }//GEN-LAST:event_renameBtnActionPerformed
 
     private void backBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtnActionPerformed
         // TODO add your handling code here:
@@ -198,21 +215,29 @@ private void refreshList(ArrayList<CardSet> sets) {
 
     private void createBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createBtnActionPerformed
         // TODO add your handling code here:
-        String name = JOptionPane.showInputDialog(this, "Set name:");
-        if(name == null || name.trim().isEmpty()){
+       String name = JOptionPane.showInputDialog(this, "Set name:");
+    if (name == null) {
         return;
     }
-        if(manager.findSet(name) != null){
-            JOptionPane.showMessageDialog(this,"That name is already used");
-            return;
-        }
-        CardSet newSet = new CardSet(name.trim());
-        if (manager.addSet(newSet)) {
-            new EditSet(manager, newSet, false).setVisible(true);
-            this.dispose();
-        } else {
-            JOptionPane.showMessageDialog(this, "A set with that name already exists.");
-        }
+    
+    name = name.trim();
+    
+    if (name.isEmpty()) {
+        return;
+    }
+
+    if (manager.findSet(name) != null) {
+        JOptionPane.showMessageDialog(this, "That name is already used.");
+        return;
+    }
+
+    CardSet newSet = new CardSet(name);
+    if (manager.addSet(newSet)) {
+        new EditSet(manager, newSet, false).setVisible(true);
+        this.dispose();
+    } else {
+        JOptionPane.showMessageDialog(this, "A set with that name already exists.");
+    }
     }//GEN-LAST:event_createBtnActionPerformed
 
     private void viewBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewBtnActionPerformed
@@ -228,8 +253,6 @@ private void refreshList(ArrayList<CardSet> sets) {
 
     private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
         // TODO add your handling code here:
-        CardSet s = getSelectedSet(); if (s == null) return;
-        refreshList(manager.search(txtSearch.getText()));
           String query = txtSearch.getText().trim();
         
         if (query.isEmpty()) {
@@ -248,7 +271,7 @@ private void refreshList(ArrayList<CardSet> sets) {
         /* Create and display the form */
         // Fix the main method to pass a new SetManager
         java.awt.EventQueue.invokeLater(() -> {
-            new SaveSets(new SetManager("sets.txt")).setVisible(true);
+            new SaveSets(new SetManager()).setVisible(true);
         });
     }
 
@@ -257,10 +280,10 @@ private void refreshList(ArrayList<CardSet> sets) {
     private javax.swing.JButton createBtn;
     private javax.swing.JButton deleteBtn;
     private javax.swing.JButton editBtn;
-    private javax.swing.JButton jButton3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JList<String> listSets;
+    private javax.swing.JButton renameBtn;
     private javax.swing.JButton searchBtn;
     private javax.swing.JTextField txtSearch;
     private javax.swing.JLabel txtTitle;

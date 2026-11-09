@@ -3,7 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package memoryjuggle;
-
+import javax.swing.*;
+import javax.swing.table.*;
 /**
  *
  * @author Shinsen
@@ -16,22 +17,62 @@ public class EditSet extends javax.swing.JFrame {
      * Creates new form EditSet
      */
     private SetManager manager;
-    private CardSet currentSet; // Store the set you are editing
+    private CardSet currentSet;
+    private DefaultTableModel tableModel;
+    
 
     // Update to accept BOTH parameters
     public EditSet(SetManager manager, CardSet currentSet,  boolean isReadOnly) {
         initComponents();
         this.manager = manager;
         this.currentSet = currentSet;
-        setLocationRelativeTo(null);
-        
          if (isReadOnly) {
-            // Lock the fields here later
             setTitle("View Set (Read Only)");
         } else {
-            setTitle("Edit Set");
+            setTitle("Edit Set");}
+            
+     jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        new Object[]{"Word", "Match"}, 0) {
+    @Override
+    public boolean isCellEditable(int row, int col) {
+        return false;
+    }
+});
+      tableModel = (DefaultTableModel) jTable1.getModel();
+      jTable1.getSelectionModel().addListSelectionListener(e -> {
+          int row = jTable1.getSelectedRow();
+          if (!e.getValueIsAdjusting() && row >= 0) {
+              txtWrd.setText((String) tableModel.getValueAt(row, 0));
+              txtMatch.setText((String) tableModel.getValueAt(row, 1));
+          }
+      });
+      
+        lblTxt.setText(currentSet.getName());
+    refreshTable();
+    
+    if (isReadOnly) {
+        txtWrd.setEnabled(false);
+        txtMatch.setEnabled(false);
+        pairBtn.setEnabled(false);
+        delBtn.setEnabled(false);
+        updBtn.setEnabled(false);
+        }
+    setLocationRelativeTo(null);
+    }
+    private void refreshTable() {
+    tableModel.setRowCount(0);
+    if (currentSet == null) {
+        return;
+    } 
+    for (CardPair pair : currentSet.getPairs()) {
+            tableModel.addRow(new Object[]{
+                    pair.getCardA(),
+                    pair.getCardB()
+            });
         }
     }
+  
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -41,54 +82,196 @@ public class EditSet extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        titleLbl = new javax.swing.JLabel();
+        lblTxt = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        lblWrd = new javax.swing.JLabel();
+        lblMatch = new javax.swing.JLabel();
+        txtWrd = new javax.swing.JTextField();
+        txtMatch = new javax.swing.JTextField();
+        pairBtn = new javax.swing.JButton();
+        delBtn = new javax.swing.JButton();
+        saveBtn = new javax.swing.JButton();
+        updBtn = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        titleLbl.setText("jLabel1");
+        lblTxt.setText("Set Name");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(159, 159, 159)
-                .addComponent(titleLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(204, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(34, 34, 34)
-                .addComponent(titleLbl)
-                .addContainerGap(250, Short.MAX_VALUE))
-        );
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(jTable1);
+
+        lblWrd.setText("Word");
+
+        lblMatch.setText("Match");
+
+        txtMatch.addActionListener(this::txtMatchActionPerformed);
+
+        pairBtn.setText("Add Pair");
+        pairBtn.addActionListener(this::pairBtnActionPerformed);
+
+        delBtn.setText("Remove Selected");
+        delBtn.addActionListener(this::delBtnActionPerformed);
+
+        saveBtn.setText("Save & Back");
+        saveBtn.addActionListener(this::saveBtnActionPerformed);
+
+        updBtn.setText("Update Selected");
+        updBtn.addActionListener(this::updBtnActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGap(212, 212, 212)
+                        .addComponent(lblTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGap(57, 57, 57)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(saveBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(updBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(txtWrd)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(29, 29, 29)
+                                        .addComponent(lblWrd, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(pairBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtMatch, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addComponent(lblMatch, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(45, 45, 45))
+                                    .addComponent(delBtn, javax.swing.GroupLayout.Alignment.TRAILING)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE)))))
+                .addGap(112, 112, 112))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(42, 42, 42)
+                .addComponent(lblTxt)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblWrd)
+                    .addComponent(lblMatch, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtWrd, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtMatch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pairBtn)
+                    .addComponent(delBtn))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(updBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(saveBtn)
+                .addContainerGap(188, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    
+    private void txtMatchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtMatchActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtMatchActionPerformed
+
+    private void pairBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pairBtnActionPerformed
+        // TODO add your handling code here:\
+        String word = txtWrd.getText();
+        String match = txtMatch.getText();
+       try {
+    manager.addPair(currentSet, word, match);
+    refreshTable();                    
+    txtWrd.setText("");
+    txtMatch.setText("");
+    txtWrd.requestFocus();
+} catch (IllegalArgumentException ex) {
+    JOptionPane.showMessageDialog(this, ex.getMessage());
+}
+    }//GEN-LAST:event_pairBtnActionPerformed
+
+    private void delBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delBtnActionPerformed
+        // TODO add your handling code here:
+        
+        int row = jTable1.getSelectedRow();
+        if (row < 0) {
+        JOptionPane.showMessageDialog(this, "Select a row first.");
+        return;
+    }
+
+    manager.removePair(currentSet, row);
+    refreshTable();
+    }//GEN-LAST:event_delBtnActionPerformed
+
+    private void updBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updBtnActionPerformed
+        int row = jTable1.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Select a row first.");
+            return;
+        }
+        try {
+            manager.updatePair(currentSet, row, txtWrd.getText(), txtMatch.getText());
+            refreshTable();
+            txtWrd.setText("");
+            txtMatch.setText("");
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+    }//GEN-LAST:event_updBtnActionPerformed
+
+    private void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBtnActionPerformed
+        // TODO add your handling code here:
+        if (currentSet.getPairs().size() < 4) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "This set has fewer than 4 pairs and can't be played yet.");
+    }
+
+    new SaveSets(manager).setVisible(true);
+    this.dispose();
+
+    }//GEN-LAST:event_saveBtnActionPerformed
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(() -> {
-            new EditSet(new SetManager("sets.txt"), new CardSet("Temp"), false).setVisible(true);
+            new EditSet(new SetManager(), new CardSet("Temp"), false).setVisible(true);
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JLabel titleLbl;
+    private javax.swing.JButton delBtn;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JLabel lblMatch;
+    private javax.swing.JLabel lblTxt;
+    private javax.swing.JLabel lblWrd;
+    private javax.swing.JButton pairBtn;
+    private javax.swing.JButton saveBtn;
+    private javax.swing.JTextField txtMatch;
+    private javax.swing.JTextField txtWrd;
+    private javax.swing.JButton updBtn;
     // End of variables declaration//GEN-END:variables
 }

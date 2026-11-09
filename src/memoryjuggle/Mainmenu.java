@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package memoryjuggle;
-
+import java.util.ArrayList;
 /**
  *
  * @author Shinsen
@@ -118,42 +118,64 @@ public class Mainmenu extends javax.swing.JFrame {
         javax.swing.JOptionPane.showMessageDialog(this, "Create a set first.");
         return;
     }
-
-    // 2. Build the picker (JComboBox)
-    String[] setNames = new String[manager.getSets().size()];
-    for (int i = 0; i < manager.getSets().size(); i++) {
+ String[] setNames = new String[manager.getSets().size()];
+    for (int i = 0; i < setNames.length; i++) {
         setNames[i] = manager.getSets().get(i).getName();
     }
-    javax.swing.JComboBox<String> picker = new javax.swing.JComboBox<>(setNames);
+    
+    javax.swing.JComboBox<String> setPicker = new javax.swing.JComboBox<>(setNames);
 
-    // 3. Show the picker dialog
-    int result = javax.swing.JOptionPane.showConfirmDialog(
-        this, 
-        picker, 
-        "Select a Set", 
-        javax.swing.JOptionPane.OK_CANCEL_OPTION
-    );
+    int setResult = javax.swing.JOptionPane.showConfirmDialog(
+        this, setPicker, "Select a Set",
+        javax.swing.JOptionPane.OK_CANCEL_OPTION);
 
-    if (result != javax.swing.JOptionPane.OK_OPTION) {
-        return; // User clicked Cancel
-    }
-
-    // 4. Get the selected set
-    String selectedName = (String) picker.getSelectedItem();
-    CardSet selectedSet = manager.findSet(selectedName);
-
-    // 5. Check pair count (4x4 = 8 pairs)
-    if (selectedSet.getPairs().size() != 8) {
-        javax.swing.JOptionPane.showMessageDialog(this, "The set needs exactly 8 pairs.");
+    if (setResult != javax.swing.JOptionPane.OK_OPTION) {
         return;
     }
+     String selectedName = (String) setPicker.getSelectedItem();
+    CardSet selectedSet = manager.findSet(selectedName);
+    if (selectedSet == null) {
+        return;
+    }
+    ArrayList<Difficulty> options = new ArrayList<>();
+    Difficulty easy = new Difficulty(); easy.easy();
+    Difficulty medium = new Difficulty(); medium.medium();
+    Difficulty hard = new Difficulty(); hard.hard();
+    Difficulty extreme = new Difficulty(); extreme.extreme();
+    Difficulty impossible = new Difficulty(); impossible.impossible();
+    
+     if (easy.getRequiredPairs() <= selectedSet.getPairs().size()) options.add(easy);
+    if (medium.getRequiredPairs() <= selectedSet.getPairs().size()) options.add(medium);
+    if (hard.getRequiredPairs() <= selectedSet.getPairs().size()) options.add(hard);
+    if (extreme.getRequiredPairs() <= selectedSet.getPairs().size()) options.add(extreme);
+    if (impossible.getRequiredPairs() <= selectedSet.getPairs().size()) options.add(impossible);
+    
+     if (options.isEmpty()) {
+        javax.swing.JOptionPane.showMessageDialog(
+            this,
+            "This set has " + selectedSet.getPairs().size() +
+            " pair(s). Lowest required is 4 pairs.");
+        return;
+    }
+     String[] levelLabels = new String[options.size()];
+    for (int i = 0; i < options.size(); i++) {
+        Difficulty d = options.get(i);
+        levelLabels[i] = d.getDifficulty() + " (" + d.getRequiredPairs() + " pairs)";
+    }
+    
+      javax.swing.JComboBox<String> levelPicker = new javax.swing.JComboBox<>(levelLabels);
 
-    // 6. Launch the game
-  Difficulty diff = new Difficulty();
-        diff.easy();
-        // Assign it to a variable to silence the "new instance ignored" warning
-        MatchCards game = new MatchCards(selectedSet.getPairs(), diff);
-       
+    int levelResult = javax.swing.JOptionPane.showConfirmDialog(
+        this, levelPicker, "Select Difficulty",
+        javax.swing.JOptionPane.OK_CANCEL_OPTION);
+
+    if (levelResult != javax.swing.JOptionPane.OK_OPTION) {
+        return;
+    }
+    Difficulty diff = options.get(levelPicker.getSelectedIndex());
+
+    new MatchCards(selectedSet.getRandomPairs(diff.getRequiredPairs()), diff);
+    this.dispose();
     }//GEN-LAST:event_playBtnActionPerformed
 
     private void extBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_extBtnActionPerformed
@@ -166,7 +188,7 @@ public class Mainmenu extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new Mainmenu(new SetManager("sets.txt")).setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new Mainmenu(new SetManager()).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

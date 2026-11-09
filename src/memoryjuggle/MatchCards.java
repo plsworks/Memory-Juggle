@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import javax.swing.*;
+import javax.swing.border.Border;
 
 public class MatchCards {
     
@@ -74,6 +75,7 @@ public class MatchCards {
         }
     }
 
+    private Difficulty diff;
     private int rows;
     private int columns;
 
@@ -102,9 +104,13 @@ public class MatchCards {
 
     ArrayList<JButton> board;
 
-    Timer hideCardTimer;
+    Timer previewTimer, hideCardTimer, swapTimer;
 
+    // true only when the player may click (false during preview and swaps)
     boolean gameReady = false;
+
+    Card[] flashed = new Card[2];
+    final Border normalBorder = new JButton().getBorder();
 
     // These must be Card, not JButton
     Card card1Selected;
@@ -113,6 +119,7 @@ public class MatchCards {
     public MatchCards(ArrayList<CardPair> cards, Difficulty diff) {
 
         this.cards = cards;
+        this.diff = diff;
 
         this.rows = diff.getRows();
         this.columns = diff.getColumns();
@@ -192,6 +199,7 @@ public class MatchCards {
 
                                 card1Selected = null;
                                 card2Selected = null;
+                                afterAttempt();
 
                             } else {
 
@@ -232,15 +240,15 @@ public class MatchCards {
             }
         });
 
-        // Timer for hiding cards
-        hideCardTimer = new Timer(1500, new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                hideCards();
-            }
+        // Preview ends -> hide everything, then do the visible start swaps
+        previewTimer = new Timer(diff.getPreviewMs(), e -> {
+            hideAll();
+            runSwaps(diff.getStartSwaps());
         });
+        previewTimer.setRepeats(false);
 
+        // Wrong pair flips back after a fixed delay on every level
+        hideCardTimer = new Timer(1500, e -> hideCards());
         hideCardTimer.setRepeats(false);
 
         frame.pack();
@@ -248,7 +256,7 @@ public class MatchCards {
         frame.setVisible(true);
 
         // Start game
-        hideCardTimer.start();
+        previewTimer.start();
     }
 
     // Display original pairs in the console
@@ -337,23 +345,19 @@ public class MatchCards {
         return false;
     }
 
-    // Hide cards after the preview or an incorrect match
+    // Hide every card (end of preview)
+    void hideAll() {
+        for (JButton b : board) {
+            b.setText("");
+            b.setIcon(cardBackImageIcon);
+        }
+    }
+
+    // Hide the two cards of an incorrect match
     void hideCards() {
 
-        if (!gameReady) {
+        if (card1Selected != null && card2Selected != null) {
 
-            // Initial hiding of all cards
-            for (int i = 0; i < board.size(); i++) {
-
-                board.get(i).setText("");
-                board.get(i).setIcon(cardBackImageIcon);
-            }
-
-            gameReady = true;
-
-        } else if (card1Selected != null && card2Selected != null) {
-
-            // Hide the two incorrectly matched cards
             card1Selected.getButton().setText("");
             card1Selected.getButton().setIcon(cardBackImageIcon);
 
@@ -362,15 +366,103 @@ public class MatchCards {
 
             card1Selected = null;
             card2Selected = null;
+
+            afterAttempt();
         }
+    }
+
+    // Impossible: swap a few cards in plain sight after every attempt
+    void afterAttempt() {
+        runSwaps(diff.getAttemptSwaps());
+    }
+
+    // Do `count` visible swaps, one per tick, then unlock input.
+    // Two unmatched cards trade places and get a yellow border until the next tick.
+    void runSwaps(int count) {
+
+        if (swapTimer != null) {
+            swapTimer.stop();
+        }
+
+        if (count == 0) {
+            gameReady = true;
+            return;
+        }
+
+        gameReady = false;
+        int[] left = {count};
+
+        swapTimer = new Timer(diff.getSwapMs(), e -> {
+            clearFlash();
+            if (left[0]-- == 0) {
+                swapTimer.stop();
+                gameReady = true;
+                return;
+            }
+            swapRandomPair();
+        });
+        swapTimer.start();
+    }
+
+    void swapRandomPair() {
+
+        ArrayList<Integer> live = new ArrayList<>();
+        for (int i = 0; i < cardSet.size(); i++) {
+            if (cardSet.get(i).getButton().isEnabled()) {   // not matched yet
+                live.add(i);
+            }
+        }
+        if (live.size() < 2) {
+            return;
+        }
+
+        Collections.shuffle(live);
+        int a = live.get(0);
+        int b = live.get(1);
+
+        flashed = new Card[]{cardSet.get(a), cardSet.get(b)};
+        Collections.swap(cardSet, a, b);
+        rebuildBoard();
+
+        for (Card c : flashed) {
+            c.getButton().setBorder(BorderFactory.createLineBorder(Color.YELLOW, 4));
+        }
+    }
+
+    void clearFlash() {
+        for (Card c : flashed) {
+            if (c != null) {
+                c.getButton().setBorder(normalBorder);
+            }
+        }
+        flashed = new Card[2];
+    }
+
+    // Re-add the same buttons in cardSet order (listeners stay attached)
+    void rebuildBoard() {
+
+        boardPanel.removeAll();
+        board.clear();
+
+        for (Card card : cardSet) {
+            board.add(card.getButton());
+            boardPanel.add(card.getButton());
+        }
+
+        boardPanel.revalidate();
+        boardPanel.repaint();
     }
 
     // Restart the game
     void restartGame() {
 
+        previewTimer.stop();
         hideCardTimer.stop();
+        if (swapTimer != null) {
+            swapTimer.stop();
+        }
+        clearFlash();
 
-        // Reset selections and errors
         card1Selected = null;
         card2Selected = null;
 
@@ -379,7 +471,7 @@ public class MatchCards {
 
         gameReady = false;
 
-        // Reset all cards
+        // Face-up again for the preview
         for (Card card : cardSet) {
 
             JButton button = card.getButton();
@@ -391,25 +483,9 @@ public class MatchCards {
             button.setIcon(cardFrontImageIcon);
         }
 
-        // Shuffle cards again
         shuffleCards();
+        rebuildBoard();
 
-        // Rebuild the board using the new shuffled order
-        boardPanel.removeAll();
-        board.clear();
-
-        for (Card card : cardSet) {
-
-            JButton button = card.getButton();
-
-            board.add(button);
-            boardPanel.add(button);
-        }
-
-        boardPanel.revalidate();
-        boardPanel.repaint();
-
-        // Show cards briefly before hiding them
-        hideCardTimer.restart();
+        previewTimer.restart();
     }
 }

@@ -2,8 +2,10 @@
 package memoryjuggle;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class CardSet {
+    private int id;   // set_id in the database (0 until saved)
     private String name;
     private ArrayList<CardPair> pairs;
 
@@ -11,6 +13,9 @@ public class CardSet {
         this.name = name;
         this.pairs = new ArrayList<>();
     }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
     public void setName(String name) {
         this.name = name;
@@ -30,36 +35,34 @@ public class CardSet {
         }
     }
 
-    public boolean addPair(String a, String b) {
-
-        // Reject blank inputs
-        if (a == null || b == null ||
-            a.trim().isEmpty() || b.trim().isEmpty()) {
-            return false;
+    // Throws IllegalArgumentException if the pair is not allowed.
+    // ignoreIndex = the row being edited (-1 when adding), so it doesn't clash with itself.
+    public void validatePair(String a, String b, int ignoreIndex) {
+        if (a == null || b == null || a.trim().isEmpty() || b.trim().isEmpty()) {
+            throw new IllegalArgumentException("Both fields are required.");
         }
-
-        // Reject delimiter
-        if (a.contains("|") || b.contains("|")) {
-            return false;
-        }
-
-        // Reject identical words
+        a = a.trim();
+        b = b.trim();
         if (a.equalsIgnoreCase(b)) {
-            return false;
+            throw new IllegalArgumentException("Word and match must be different.");
         }
+        for (int i = 0; i < pairs.size(); i++) {
+            if (i == ignoreIndex) continue;
+            CardPair p = pairs.get(i);
+            if (p.getCardA().equalsIgnoreCase(a) || p.getCardA().equalsIgnoreCase(b)
+                    || p.getCardB().equalsIgnoreCase(a) || p.getCardB().equalsIgnoreCase(b)) {
+                throw new IllegalArgumentException("One of those words is already used in this set.");
+            }
+        }
+    }
 
-      // Check for existing words
-    for (CardPair pair : pairs) {
-    if (pair.getCardA().equalsIgnoreCase(a) ||
-        pair.getCardA().equalsIgnoreCase(b) ||
-        pair.getCardB().equalsIgnoreCase(a) ||
-        pair.getCardB().equalsIgnoreCase(b)) {
-        return false;
+public ArrayList<CardPair> getRandomPairs(int n) {
+    if (n > pairs.size()) {
+        throw new IllegalArgumentException(
+            "Requested " + n + " pairs, but this set only has " + pairs.size());
     }
-    }
-
-        // Add valid pair
-        pairs.add(new CardPair(a.trim(), b.trim()));
-        return true;
-    }
+    ArrayList<CardPair> copy = new ArrayList<>(pairs);
+    Collections.shuffle(copy);
+    return new ArrayList<>(copy.subList(0, n));
+}
 }
