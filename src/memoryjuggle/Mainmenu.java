@@ -112,69 +112,85 @@ public class Mainmenu extends javax.swing.JFrame {
     }//GEN-LAST:event_setsBtnActionPerformed
 
     private void playBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playBtnActionPerformed
-        // TODO add your handling code here:
-         // 1. Check if there are any sets
+ 
+    // CHECK IF THERE ARE ANY SETS
     if (manager.getSets().isEmpty()) {
         javax.swing.JOptionPane.showMessageDialog(this, "Create a set first.");
         return;
     }
- String[] setNames = new String[manager.getSets().size()];
+
+    String[] setNames = new String[manager.getSets().size()];
+
     for (int i = 0; i < setNames.length; i++) {
         setNames[i] = manager.getSets().get(i).getName();
     }
-    
+
     javax.swing.JComboBox<String> setPicker = new javax.swing.JComboBox<>(setNames);
 
     int setResult = javax.swing.JOptionPane.showConfirmDialog(
-        this, setPicker, "Select a Set",
-        javax.swing.JOptionPane.OK_CANCEL_OPTION);
+            this, setPicker, "Select a Set",
+            javax.swing.JOptionPane.OK_CANCEL_OPTION);
 
     if (setResult != javax.swing.JOptionPane.OK_OPTION) {
         return;
     }
-     String selectedName = (String) setPicker.getSelectedItem();
+
+    String selectedName = (String) setPicker.getSelectedItem();
     CardSet selectedSet = manager.findSet(selectedName);
+
     if (selectedSet == null) {
         return;
     }
+
+    // DIFFICULTY OPTIONS
     ArrayList<Difficulty> options = new ArrayList<>();
+
     Difficulty easy = new Difficulty(); easy.easy();
     Difficulty medium = new Difficulty(); medium.medium();
     Difficulty hard = new Difficulty(); hard.hard();
     Difficulty extreme = new Difficulty(); extreme.extreme();
     Difficulty impossible = new Difficulty(); impossible.impossible();
-    
-     if (easy.getRequiredPairs() <= selectedSet.getPairs().size()) options.add(easy);
+
+    if (easy.getRequiredPairs() <= selectedSet.getPairs().size()) options.add(easy);
     if (medium.getRequiredPairs() <= selectedSet.getPairs().size()) options.add(medium);
     if (hard.getRequiredPairs() <= selectedSet.getPairs().size()) options.add(hard);
     if (extreme.getRequiredPairs() <= selectedSet.getPairs().size()) options.add(extreme);
     if (impossible.getRequiredPairs() <= selectedSet.getPairs().size()) options.add(impossible);
-    
-     if (options.isEmpty()) {
+
+    if (options.isEmpty()) {
         javax.swing.JOptionPane.showMessageDialog(
-            this,
-            "This set has " + selectedSet.getPairs().size() +
-            " pair(s). Lowest required is 4 pairs.");
+                this,
+                "This set has " + selectedSet.getPairs().size()
+                + " pair(s). Lowest required is 4 pairs.");
         return;
     }
-     String[] levelLabels = new String[options.size()];
+
+    String[] levelLabels = new String[options.size()];
+
     for (int i = 0; i < options.size(); i++) {
         Difficulty d = options.get(i);
         levelLabels[i] = d.getDifficulty() + " (" + d.getRequiredPairs() + " pairs)";
     }
-    
-      javax.swing.JComboBox<String> levelPicker = new javax.swing.JComboBox<>(levelLabels);
+
+    javax.swing.JComboBox<String> levelPicker = new javax.swing.JComboBox<>(levelLabels);
 
     int levelResult = javax.swing.JOptionPane.showConfirmDialog(
-        this, levelPicker, "Select Difficulty",
-        javax.swing.JOptionPane.OK_CANCEL_OPTION);
+            this, levelPicker, "Select Difficulty",
+            javax.swing.JOptionPane.OK_CANCEL_OPTION);
 
     if (levelResult != javax.swing.JOptionPane.OK_OPTION) {
         return;
     }
+
     Difficulty diff = options.get(levelPicker.getSelectedIndex());
 
-    new MatchCards(selectedSet.getRandomPairs(diff.getRequiredPairs()), diff);
+    // GET RANDOM PAIRS FROM SELECTED SET
+    ArrayList<CardPair> selectedPairs =
+            selectedSet.getRandomPairs(diff.getRequiredPairs());
+
+    // OPEN NEW GAME
+    new Game(selectedPairs, diff).setVisible(true);
+
     this.dispose();
     }//GEN-LAST:event_playBtnActionPerformed
 

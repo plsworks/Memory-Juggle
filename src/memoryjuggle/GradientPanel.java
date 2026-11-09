@@ -16,7 +16,7 @@ public class GradientPanel extends JPanel {
 
         GradientPaint gradient = new GradientPaint(
             0, 0, Color.decode("#605063"),
-            getWidth(), getHeight(), Color.decode("#000046")
+            getWidth(), getHeight(), Color.decode("#000000")
         );
 
         g2.setPaint(gradient);
