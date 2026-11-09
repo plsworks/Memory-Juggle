@@ -84,6 +84,8 @@ public class Game extends javax.swing.JFrame {
     private Timer hideCardTimer;
     
     private JLabel errorLabel;
+    
+    private Difficulty diff;
 
     @Override
     public void paintComponents(Graphics g) {
@@ -136,8 +138,14 @@ public class Game extends javax.swing.JFrame {
     
     
     // CONSTRUCTOR
-    public Game() {
+    public Game(ArrayList<CardPair> cards, Difficulty diff) {
         initComponents();
+
+        this.cards = cards;
+        this.diff = diff;
+
+        rows = diff.getRows();
+        columns = diff.getColumns();
         jList1.setBorder(null);
         jScrollPane1.setBorder(null);
         jList1.setOpaque(false);
@@ -146,34 +154,22 @@ public class Game extends javax.swing.JFrame {
         jScrollPane1.getViewport().setOpaque(false);
         setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
 
-        // CARD PAIRS
-        cards = new ArrayList<>();
-
-        cards.add(new CardPair("Apple", "Mansanas"));
-        cards.add(new CardPair("Dog", "Aso"));
-        cards.add(new CardPair("Cat", "Pusa"));
-        cards.add(new CardPair("Book", "Libro"));
-        cards.add(new CardPair("Water", "Tubig"));
-        cards.add(new CardPair("House", "Bahay"));
-        cards.add(new CardPair("Sun", "Araw"));
-        cards.add(new CardPair("Moon", "Buwan"));
         
-        displayCardPairs();
-        
-        // DIFFICULTY
-        Difficulty diff = new Difficulty();
-        diff.easy();
-
-        rows = diff.getRows();
-        columns = diff.getColumns();
 
         // SETUP GAME PANEL
         jPanel4.setLayout(new BorderLayout());
 
+        // SCORE PANEL
+        JPanel scorePanel = new JPanel(new BorderLayout());
+        scorePanel.setOpaque(false);
+
         errorLabel = new JLabel("Errors: 0", SwingConstants.CENTER);
         errorLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        errorLabel.setForeground(Color.WHITE);
 
-        jPanel4.add(errorLabel, BorderLayout.NORTH);
+        scorePanel.add(errorLabel, BorderLayout.CENTER);
+
+        jPanel4.add(scorePanel, BorderLayout.NORTH);
 
         setupCards();
         shuffleCards();
@@ -209,7 +205,7 @@ public class Game extends javax.swing.JFrame {
         jButton2.addActionListener(e -> restartGame());
 
         // TIMER
-        hideCardTimer = new Timer(1500, e -> hideCards());
+        hideCardTimer = new Timer(diff.getPreviewMs(), e -> hideCards());
         hideCardTimer.setRepeats(false);
 
         // START INITIAL PREVIEW
@@ -506,26 +502,25 @@ public class Game extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new Game().setVisible(true));
-    }
+    ArrayList<CardPair> cards = new ArrayList<>();
+
+    cards.add(new CardPair("Apple", "Mansanas"));
+    cards.add(new CardPair("Dog", "Aso"));
+    cards.add(new CardPair("Cat", "Pusa"));
+    cards.add(new CardPair("Book", "Libro"));
+    cards.add(new CardPair("Water", "Tubig"));
+    cards.add(new CardPair("House", "Bahay"));
+    cards.add(new CardPair("Sun", "Araw"));
+    cards.add(new CardPair("Moon", "Buwan"));
+
+    Difficulty diff = new Difficulty();
+    diff.easy();
+
+    java.awt.EventQueue.invokeLater(() ->
+        new Game(cards, diff).setVisible(true)
+    );
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
